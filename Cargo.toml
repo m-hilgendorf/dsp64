@@ -1,0 +1,7 @@
+[package]
+name = "dsp64"
+version = "0.1.0"
+authors = ["Mike Hilgendorf <mike@hilgendorf.audio>"]
+edition = "2018"
+
+[dependencies]
