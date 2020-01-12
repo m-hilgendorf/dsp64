@@ -1,16 +1,23 @@
 //! # DSP64 : double precision signal processsing
 //!
-pub mod proc;
-
+mod proc;
+mod observer; 
+pub mod siggen;
+pub use observer::Observer;
+pub use proc::*;
 /// Common methods for signal types. Currently implemented for `f64` and fixed sized arrays of `f64`,
 /// and tuples of `f64`.
 pub trait Signal
-where
-    Self: Sized,
 {
     fn clamp_to(self, min: f64, max: f64) -> Self;
     fn clamp(self) -> Self;
     fn polyval(self, p: &[f64]) -> Self;
+}
+
+impl Signal for () {
+    fn clamp_to(self, _min: f64, _max: f64) -> Self { self }
+    fn clamp(self) -> Self { self }
+    fn polyval(self, _p: &[f64]) -> Self { self }
 }
 
 impl Signal for f64 {
@@ -36,7 +43,7 @@ impl Signal for f64 {
 
 impl<'a, S> Signal for &'a mut [S]
 where
-    S: Signal + Copy,
+    S: Signal + Copy + Sized,
 {
     fn clamp_to(self, min: f64, max: f64) -> Self {
         for x in self.iter_mut() {
@@ -217,7 +224,7 @@ macro_rules! impl_n {
     ($n:literal) => {
         impl<S> Signal for [S; $n]
         where
-            S: Signal + Copy,
+            S: Signal + Copy + Sized,
         {
             fn clamp_to(mut self, min: f64, max: f64) -> Self {
                 for x in self.iter_mut() {
